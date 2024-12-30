@@ -114,4 +114,4 @@ Resource Requests and Limits Definition: To ensure that the application does n
 
 Isolation: Namespaces and network policies allow you to isolate resources and control access within the cluster, which helps in multi-tenant
 
-Overall, this manifest was taking into account good production practice but might require some tuning for high traffic scenario or require stronger security requirements. Other considerations (like monitoring/logging, fault tolerance...) might be included for a full production-grade setup..
+Overall, this manifest is taking into account good production practice but might require some tuning for high traffic scenario or require stronger security requirements. Other considerations (like monitoring/logging, fault tolerance...) might be included for a full production-grade setup..
