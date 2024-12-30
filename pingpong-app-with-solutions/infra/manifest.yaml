@@ -38,6 +38,14 @@ spec:
               value: "9080"
             - name: SERVICE__PORT
               value: "8080"
+          # Resource requests and limits    
+          resources:  
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
           # Readiness probe to check if the app is ready     
           readinessProbe:
             httpGet:
@@ -62,6 +70,16 @@ spec:
             initialDelaySeconds: 20
             periodSeconds: 10
             failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - SYS_ADMIN
+            privileged: false
+            runAsGroup: 3000
+            runAsNonRoot: true
+            runAsUser: 1000
+
 ---
 # Service to expose pingpong-a application
 
@@ -144,6 +162,14 @@ spec:
               value: "9080"
             - name: SERVICE__PORT
               value: "8080"
+          # Resource requests and limits    
+          resources:  
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"    
           # Readiness probe to check if the app is ready    
           readinessProbe:
             httpGet:
@@ -167,6 +193,15 @@ spec:
             initialDelaySeconds: 20
             periodSeconds: 10
             failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - SYS_ADMIN
+            privileged: false
+            runAsGroup: 3000
+            runAsNonRoot: true
+            runAsUser: 1000 
 ---
 # Service to expose pingpong-b application
 apiVersion: v1
