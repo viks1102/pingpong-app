@@ -102,11 +102,16 @@ Production Consideration:
     Autoscaling is crucial for handling variable traffic loads. The minimum and maximum replica settings ensure that the app remains responsive and cost-efficient.
 
 
-## Production-Grade Considerations:
-	1.	Scalability: The use of replicas and Horizontal Pod Autoscalers ensures that the application can handle varying loads and scale up or down based on CPU utilization.
-	2.	Resilience: The use of liveness, readiness, and startup probes ensures that the application is resilient to failures, with Kubernetes automatically restarting unhealthy pods.
-	3.	Security: The security context enforces non-root containers and restricts unnecessary capabilities, reducing the attack surface. Network policies ensure that only necessary communication is allowed between services.
-	4.	Resource Management: Defining resource requests and limits ensures that the application consumes appropriate resources, preventing resource starvation and over-consumption.
-	5.	Isolation: Using namespaces and network policies helps isolate resources and control access within the cluster, which is important for multi-tenant environments.
+## Considerations for Production-Grade:
 
-Overall, this manifest is designed with good production practices in mind but may need to be adjusted for high-traffic environments or more stringent security requirements. Considerations such as monitoring, logging, and fault tolerance might also be added for a complete production-grade setup.
+Scalability: The replicas and Horizontal Pod Autoscalers allow the application to scale and manage variable load based on CPU usage.
+
+Their Resilience: Liveness, Readiness, and Startup Probes allow the application to be resilient to failure, with Kubernetes taking the challenge of automatically restarting unhealthy pods.
+
+Security: Security context enforces running containers as non-root, as well as dropping unused capabilities, shrinking the attack surface. Network policies allow only required communication between services.
+
+Resource Requests and Limits Definition: To ensure that the application does not starve of or over-consume resources, you define resource requests and limits.
+
+Isolation: Namespaces and network policies allow you to isolate resources and control access within the cluster, which helps in multi-tenant
+
+Overall, this manifest was taking into account good production practice but might require some tuning for high traffic scenario or require stronger security requirements. Other considerations (like monitoring/logging, fault tolerance...) might be included for a full production-grade setup..
