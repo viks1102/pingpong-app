@@ -1,0 +1,294 @@
+# Namespace definition for pingpong-a
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pingpong-a
+---
+
+# Deployment for pingpong-a app
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pingpong-a
+  namespace: pingpong-a
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pingpong-a
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pingpong-a
+    spec:
+      containers:
+        - name: pingpong-a
+          image: ping-pong:test
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TARGET
+              value: "http://pingponger-b.pingpong-b:8080/ping"
+            - name: TICK_MS
+              value: "100"
+            - name: METRICS__PATH
+              value: "/-/metrics"
+            - name: METRICS__PORT
+              value: "9080"
+            - name: SERVICE__PORT
+              value: "8080"
+          # Readiness probe to check if the app is ready     
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          # Liveness probe to check if the app is alive  
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            failureThreshold: 3
+          # Startup probe to ensure the app starts properly  
+          startupProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+---
+# Service to expose pingpong-a application
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: pingponger-a
+  namespace: pingpong-a
+spec:
+  selector:
+    app.kubernetes.io/name: pingpong-a
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+
+# Horizontal Pod Autoscaler for pingpong-a
+# Automatically scales the number of pods based on CPU utilization
+# Scales between 2 and 10 replicas, targeting 50% CPU utilization.
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pingpong-a-hpa
+  namespace: pingpong-a
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pingpong-a
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50     # Target CPU utilization
+---
+
+# Namespace definition for pingpong-b
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pingpong-b
+---
+# Deployment for pingpong-b application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pingpong-b
+  namespace: pingpong-b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pingpong-b
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pingpong-b
+    spec:
+      containers:
+        - name: pingpong-b
+          image: ping-pong:test
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TARGET
+              value: "http://pingponger-a.pingpong-a:8080/ping"
+            - name: TICK_MS
+              value: "100"
+            - name: METRICS__PATH
+              value: "/-/metrics"
+            - name: METRICS__PORT
+              value: "9080"
+            - name: SERVICE__PORT
+              value: "8080"
+          # Readiness probe to check if the app is ready    
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            failureThreshold: 3
+          # Startup probe to ensure the app starts properly  
+          startupProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+---
+# Service to expose pingpong-b application
+apiVersion: v1
+kind: Service
+metadata:
+  name: pingponger-b
+  namespace: pingpong-b
+spec:
+  selector:
+    app.kubernetes.io/name: pingpong-b
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+# Scales between 2 and 10 replicas, targeting 50% CPU utilization.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pingpong-b-hpa
+  namespace: pingpong-b
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pingpong-b
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+---          
+# Netpol to allow DNS egress for pingpong-a
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: pingpong-a
+spec:
+  policyTypes:
+    - Egress
+  podSelector: { }
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: TCP
+---
+# Network Polcy to allow DNS egress for pingpong-b
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: pingpong-b
+spec:
+  policyTypes:
+    - Egress
+  podSelector: { }
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - port: 53
+          protocol: TCP          
+---
+# Network Policy to allow comunication btw pingpong-a and pingpong-b
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-pingpong-communication
+  namespace: pingpong-a
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: pingpong-a
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: pingpong-b
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: pingpong-b
+    ports:
+    - protocol: TCP
+      port: 8080
+---
+# Network Policy to allow comunication btw pingpong-b and pingpong-a
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-pingpong-communication
+  namespace: pingpong-b
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: pingpong-b
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: pingpong-a
+      podSelector:
+        matchLabels:
+          app.kubernetes.io/name: pingpong-a
+    ports:
+    - protocol: TCP
+      port: 8080
+---
