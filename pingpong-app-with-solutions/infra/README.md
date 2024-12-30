@@ -50,5 +50,6 @@ Production Consideration:
         runAsUser: 1000
 
 Enforces security best practices by restricting container privileges.
+
 Production Consideration: 
     Running containers as non-root users and avoiding privilege escalation are critical for reducing the risk of container breakout vulnerabilities.
