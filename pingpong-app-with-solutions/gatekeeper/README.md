@@ -3,6 +3,7 @@
 ## How It Works:
 
 1) ConstraintTemplate: 
+
     Describes the logic and schema for a particular policy.
 
 2) Custom Resource Definition:
