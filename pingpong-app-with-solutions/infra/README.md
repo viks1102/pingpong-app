@@ -32,3 +32,23 @@ Production Consideration:
         limits:
             memory: "256Mi"
             cpu: "500m"
+
+It Specifies resource limits to prevent overconsumption and ensure fair resource distribution.
+Production Consideration: 
+    It’s critical to define resource requests and limits based on the actual application requirements to avoid issues like OOM kills or CPU starvation.
+
+## 3. Security Context for pingpong-a
+
+    securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+            drop:
+                - SYS_ADMIN
+        privileged: false
+        runAsGroup: 3000
+        runAsNonRoot: true
+        runAsUser: 1000
+
+Enforces security best practices by restricting container privileges.
+Production Consideration: 
+    Running containers as non-root users and avoiding privilege escalation are critical for reducing the risk of container breakout vulnerabilities.
