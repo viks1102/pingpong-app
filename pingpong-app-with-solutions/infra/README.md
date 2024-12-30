@@ -26,9 +26,9 @@ Production Consideration:
     Resource Requests and Limits: These ensure that the pod gets the right amount of CPU and memory resources while preventing it from over-consuming the cluster’s resources. In production, resource requests and limits are essential to avoid resource contention.  
 
     resources:  
-  requests:
-    memory: "128Mi"
-    cpu: "250m"
-  limits:
-    memory: "256Mi"
-    cpu: "500m"
+        requests:
+            memory: "128Mi"
+            cpu: "250m"
+        limits:
+            memory: "256Mi"
+            cpu: "500m"
