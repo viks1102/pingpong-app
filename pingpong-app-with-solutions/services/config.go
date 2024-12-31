@@ -26,7 +26,7 @@ type ConfigMetrics struct {
 }
 
 var defaultConfig = Config{
-	Target: "http://ping-a:8080",
+	Target: "pingponger-a",
 	TickMS: 100,
 	Service: ConfigService{
 		Port: 8080,
