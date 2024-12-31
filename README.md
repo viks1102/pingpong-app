@@ -68,4 +68,16 @@ Namespaces
 # Service Mesh:
 -	Added Istio for traffic management, observability, and security. 
 
+For a production setup, both ArgoCD or FluxCD are great options for continuous deployment and GitOps workflows. 
 
+For setting up a production-grade Kubernetes environment for pingpong app we can also consider below options: 
+
+- we can make use of GitOps with ArgoCD to automate and manage deployments from Git repositories.
+- We can implement RBAC, Network Policies, Pod Security Policies, and TLS/SSL encryption.
+- for security use audit logs to track actions and ensure compliance.
+- For monitoring use Prometheus and Grafana for metrics collection and visualization.
+- Create CI/CD pipeline using tools like Codefresh, Jenkins, Github Action,GitLab CI...
+- Use global load balancing for multi-cluster environments.
+- Use IAC tools like Terraform to manage infrastructure deployment. 
+
+By implementing these practices, you can ensure your Kubernetes setup is secure, scalable, and highly available for production workloads.
